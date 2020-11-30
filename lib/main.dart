@@ -30,6 +30,19 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   int _temp = 25;
 
+  _temp() async {
+  final response = await http.get('https://api.thingspeak.com/channels/1240502/feeds.json?api_key=DR94BSKWMGG22Q9U&results=1');
+
+  if (response.statusCode == 200) {
+    var jsonResponse = json.decode(response.body);
+    temperatura =  fromJson(jsonResponse);
+    return temperatura;
+  } else {
+    // If that response was not OK, throw an error.
+    throw Exception('Failed to load post');
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -39,9 +52,9 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
-              color: (_temp <= 10 && _temp <= 20)
+              color: (_temp()<= 10 && _temp() <= 20)
                   ? Colors.lightBlue
-                  : (_temp > 20 && _temp <= 30)
+                  : (_temp() > 20 && _temp() <= 30)
                       ? Colors.amber
                       : Colors.red,
             ),
@@ -50,7 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '$_temp º',
+                    '$_temp() º',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 70,
@@ -67,9 +80,9 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {},
         child: Icon(
           Icons.sync_rounded,
-          color: (_temp <= 10 && _temp <= 20)
+          color: (_temp() <= 10 && _temp() <= 20)
               ? Colors.lightBlue
-              : (_temp > 20 && _temp <= 30)
+              : (_temp() > 20 && _temp() <= 30)
                   ? Colors.amber
                   : Colors.red,
         ),
