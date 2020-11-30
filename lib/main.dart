@@ -36,7 +36,7 @@ class _MyHomePageState extends State<MyHomePage> {
   if (response.statusCode == 200) {
     var jsonResponse = json.decode(response.body);
     temperatura =  fromJson(jsonResponse);
-    return temperatura;
+    return temperatura.feeds[0].field1;
   } else {
     // If that response was not OK, throw an error.
     throw Exception('Failed to load post');
