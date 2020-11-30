@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -28,22 +30,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _temp = 25;
+  // int _temp = 25;
 
-  _temp() async {
-  final response = await http.get('https://api.thingspeak.com/channels/1240502/feeds.json?api_key=DR94BSKWMGG22Q9U&results=1');
+  Map mapResponse;
+  List listOfFacts;
 
-  if (response.statusCode == 200) {
-    var jsonResponse = json.decode(response.body);
-    temperatura =  fromJson(jsonResponse);
-    return temperatura.feeds[0].field1;
-  } else {
-    // If that response was not OK, throw an error.
-    throw Exception('Failed to load post');
+  Future fetchData() async {
+    http.Response response;
+
+    response = await http.get(
+        'https://api.thingspeak.com/channels/1240502/feeds.json?api_key=DR94BSKWMGG22Q9U&results=1');
+
+    if (response.statusCode == 200) {
+      setState(
+        () {
+          mapResponse = json.decode(response.body);
+          listOfFacts = mapResponse['feeds'];
+        },
+      );
+    }
   }
-}
 
   @override
+  void initState() {
+    fetchData();
+    super.initState();
+  }
+
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
@@ -52,9 +65,10 @@ class _MyHomePageState extends State<MyHomePage> {
             Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
-              color: (_temp()<= 10 && _temp() <= 20)
+              color: (int.parse(listOfFacts[0]['field1']) <= 10)
                   ? Colors.lightBlue
-                  : (_temp() > 20 && _temp() <= 30)
+                  : (int.parse(listOfFacts[0]['field1']) >= 11 &&
+                          int.parse(listOfFacts[0]['field1']) <= 20)
                       ? Colors.amber
                       : Colors.red,
             ),
@@ -63,10 +77,10 @@ class _MyHomePageState extends State<MyHomePage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    '$_temp() º',
+                    listOfFacts[0]['field1'] + 'º',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 70,
+                      fontSize: 60,
                     ),
                   ),
                 ],
@@ -80,9 +94,10 @@ class _MyHomePageState extends State<MyHomePage> {
         onPressed: () {},
         child: Icon(
           Icons.sync_rounded,
-          color: (_temp() <= 10 && _temp() <= 20)
+          color: (int.parse(listOfFacts[0]['field1']) <= 10)
               ? Colors.lightBlue
-              : (_temp() > 20 && _temp() <= 30)
+              : (int.parse(listOfFacts[0]['field1']) >= 11 &&
+                      int.parse(listOfFacts[0]['field1']) <= 20)
                   ? Colors.amber
                   : Colors.red,
         ),
